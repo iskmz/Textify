@@ -1,18 +1,117 @@
-<?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context=".MainActivity">
+<RelativeLayout
+    android:layout_width="match_parent" android:layout_height="match_parent"
+    android:background="@drawable/back_main"
+    xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Hello World!"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:layout_above="@id/btnExit"
+        android:layout_marginBottom="10dp"
+        android:layout_alignParentTop="true"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_centerHorizontal="true">
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+        <ImageView
+            android:id="@+id/imgDefault"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:layout_gravity="center"
+            android:src="@drawable/title"
+            android:scaleType="fitCenter"
+            android:scaleX="1.25"
+            android:scaleY="1.5"
+            android:tint="#ffffff"
+            android:visibility="visible"/>
+
+        <ImageView
+            android:id="@+id/imgCurrent"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:layout_gravity="center"
+            android:scaleType="fitCenter"
+            android:visibility="gone"/>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:textSize="16sp"
+
+            android:scrollbarAlwaysDrawVerticalTrack="true"
+            android:scrollbarFadeDuration="0"
+            android:scrollbars="vertical"
+            android:verticalScrollbarPosition="left"
+
+            android:textColor="#ffffff"
+            android:text="Welcome to Textify \n\n press on the camera below \n to start textifying !"/>
+
+    </LinearLayout>
+
+    <ImageButton
+        android:id="@+id/btnShare"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_above="@id/btnExit"
+        android:layout_alignStart="@id/btnExit"
+        android:background="@drawable/ic_share"
+        android:layout_marginBottom="10dp"
+        android:backgroundTint="#2196F3"
+        android:visibility="gone"
+        />
+
+    <ImageButton
+        android:id="@+id/btnCopyClipboard"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_above="@id/btnShoot"
+        android:layout_alignEnd="@id/btnShoot"
+        android:background="@drawable/ic_copy"
+        android:layout_marginBottom="10dp"
+        android:backgroundTint="#2196F3"
+        android:visibility="gone"
+        />
+
+    <ImageButton
+        android:id="@+id/btnExit"
+        android:layout_width="80dp"
+        android:layout_height="80dp"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentStart="true"
+        android:layout_marginStart="16dp"
+        android:layout_marginBottom="16dp"
+        android:background="@drawable/ic_exit"
+        android:scaleX="-1"
+        android:backgroundTint="#FD1500"/>
+
+    <ImageButton
+        android:id="@+id/btnAbout"
+        android:layout_width="80dp"
+        android:layout_height="80dp"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="16dp"
+        android:background="@drawable/ic_info"
+        android:scaleX="-1"
+        android:backgroundTint="#FF5722"/>
+
+    <ImageButton
+        android:id="@+id/btnShoot"
+        android:layout_width="80dp"
+        android:layout_height="80dp"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="16dp"
+        android:background="@drawable/ic_camera"
+        android:scaleX="-1"
+        android:backgroundTint="#8BC34A"/>
+
+
+</RelativeLayout>
