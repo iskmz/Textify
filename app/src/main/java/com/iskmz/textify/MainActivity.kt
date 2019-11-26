@@ -60,9 +60,7 @@ class MainActivity : AppCompatActivity() {
 
         initCloudinary()
         initViews()
-
-        if(Build.VERSION.SDK_INT>=Build.VERSION_CODES.M) checkForPermission()
-
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) checkForPermission()
         setOnClicks()
     }
 
@@ -166,8 +164,8 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun eraseAllLocal() {
-        val directory = File(DIR)
-        directory.deleteRecursively()
+            val directory = File(DIR)
+            if(directory.exists()) directory.deleteRecursively()
     }
 
     private fun resizeImgCurrent() {
