@@ -13,6 +13,9 @@ import android.Manifest.permission.READ_EXTERNAL_STORAGE
 import android.Manifest.permission.WRITE_EXTERNAL_STORAGE
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.content.ClipData.newPlainText
+import android.content.ClipboardManager
+import android.content.Context
 import android.content.pm.PackageManager.PERMISSION_GRANTED
 import androidx.core.content.ContextCompat
 import android.widget.Toast
@@ -61,7 +64,6 @@ class MainActivity : AppCompatActivity() {
         if(Build.VERSION.SDK_INT>=Build.VERSION_CODES.M) checkForPermission()
 
         setOnClicks()
-
     }
 
     private fun initViews() {
@@ -137,11 +139,18 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun shareTxt() {
-        // TODO
+        try {
+            val shareIntent = Intent(Intent.ACTION_SEND)
+            shareIntent.type="text/plain"
+            shareIntent.putExtra(Intent.EXTRA_TEXT,textResult)
+            startActivity(Intent.createChooser(shareIntent, "share text ..."))
+        } catch (e:Exception) { e.printStackTrace() }
     }
 
     private fun copyTxtToClipboard() {
-        // TODO
+        val clipboard = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+        clipboard.primaryClip = newPlainText("",textResult)
+        Toast.makeText(this@MainActivity,"Copied to clipboard!",Toast.LENGTH_SHORT).show()
     }
 
     private fun eraseImgCache() {
@@ -292,7 +301,8 @@ class MainActivity : AppCompatActivity() {
     private fun analyzeImage(url: String) {
 
         val API_KEY = "3d0eb03da388957"
-        val getReq = "https://api.ocr.space/parse/imageurl?apikey=$API_KEY&filetype=JPG&url=$url"
+        val getReq = "https://api.ocr.space/parse/imageurl?apikey=$API_KEY" +
+                "&detectOrientation=true&filetype=JPG&url=$url"
 
 
         object:AsyncTask<Void,Void,String>(){
