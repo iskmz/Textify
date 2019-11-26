@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">Textify</string>
+    <string name="txt_default">Welcome to Textify  \n\n press on the camera below  \n to start textifying</string>
 </resources>

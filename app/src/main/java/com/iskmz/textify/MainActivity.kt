@@ -11,6 +11,7 @@ import androidx.core.app.ActivityCompat
 import android.Manifest.permission.CAMERA
 import android.Manifest.permission.READ_EXTERNAL_STORAGE
 import android.Manifest.permission.WRITE_EXTERNAL_STORAGE
+import android.app.Activity
 import android.content.pm.PackageManager.PERMISSION_GRANTED
 import androidx.core.content.ContextCompat
 import android.widget.Toast
@@ -22,6 +23,11 @@ import android.os.Environment.*
 import android.util.Log
 import java.io.File.separator
 import java.io.File
+import android.graphics.BitmapFactory
+import android.graphics.Bitmap
+import com.cloudinary.android.callback.ErrorInfo
+import com.cloudinary.android.callback.UploadCallback
+import java.io.FileOutputStream
 
 
 class MainActivity : AppCompatActivity() {
@@ -38,16 +44,26 @@ class MainActivity : AppCompatActivity() {
     var fileName=""
     val DIR = getExternalStoragePublicDirectory(DIRECTORY_PICTURES).toString() + separator + "textify"
 
+
+    var textResult = ""
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
         initCloudinary()
+        initViews()
 
         if(Build.VERSION.SDK_INT>=Build.VERSION_CODES.M) checkForPermission()
 
         setOnClicks()
 
+    }
+
+    private fun initViews() {
+        imgCurrent.visibility = GONE
+        imgDefault.visibility = VISIBLE
+        txtText.text = getString(R.string.txt_default)
     }
 
     private fun checkForPermission() {
@@ -130,11 +146,15 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun eraseAllRemote() {
-        // TODO
+        /*
+        no need!
+        done from backend!
+         */
     }
 
     private fun eraseAllLocal() {
-       // TODO
+        val directory = File(DIR)
+        directory.deleteRecursively()
     }
 
     private fun resizeImgCurrent() {
@@ -192,7 +212,6 @@ class MainActivity : AppCompatActivity() {
 
         // check external storage STATE FIRST ! //
         if (!extStorageOK()) return  // exit, no need to continue, as photo cannot be stored ! //
-
         val file = assignFile() // assign file & create directory if NOT exist
 
         // android image capture + add filepath to store it (if taken by user eventually!) //
@@ -205,8 +224,72 @@ class MainActivity : AppCompatActivity() {
         } catch (e: Exception) {
             Log.e("Err_PHOTO_SHOOT", "shootPhoto():Intent_Exception " + e.message)
         }
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+
+        if(resultCode== Activity.RESULT_OK && requestCode== CAMERA_RESULT)
+        {
+            // get saved file into a bitmap object
+            val file = File(fileName)
+
+            //read the image from the file and convert it to a bitmap
+            val opts = BitmapFactory.Options()
+            opts.inSampleSize = 5
+            val myBitmap = BitmapFactory.decodeFile(file.absolutePath,opts)
+
+            // compress bitmap  // already compress by 1/5 (sample size) //
+            val out = FileOutputStream(file)
+            myBitmap.compress(Bitmap.CompressFormat.JPEG, 100, out)
+
+            // update views !
+            imgCurrent.setImageBitmap(myBitmap)
+            imgCurrent.visibility = VISIBLE
+            imgDefault.visibility = GONE
+            setTextifyResult(fileName)
+
+        }
+    }
+
+    private fun setTextifyResult(path: String)
+    {
+        MediaManager.get().upload(path)
+            .unsigned("f9lwsqzh")
+            .option("folder","textify")
+            .callback(object : UploadCallback {
+                override fun onProgress(requestId: String?, bytes: Long, totalBytes: Long) {}
+                override fun onStart(requestId: String?) {
+                    textResult = "analyzing ..."
+                    txtText.text = textResult
+                }
+                override fun onReschedule(requestId: String?, error: ErrorInfo?) { errMsg() }
+                override fun onError(requestId: String?, error: ErrorInfo?) { errMsg() }
+
+                private fun errMsg() {
+                    Toast.makeText(this@MainActivity,
+                        "error while uploading img!", Toast.LENGTH_LONG).show()
+                    textResult = "error!"
+                    txtText.text = textResult
+                }
+
+                override fun onSuccess(requestId: String?, resultData: MutableMap<Any?, Any?>?) {
+                    val url = resultData!!["url"].toString()
+                    textResult = analyzeImage(url)
+                    txtText.text = textResult
+                }
+            }
+            )
+            .dispatch()
+    }
+
+    private fun analyzeImage(url: String): String {
+
+        var res = ""
+
 
     }
+
 
     private fun extStorageOK(): Boolean {
         val extStorageState = getExternalStorageState()

@@ -51,7 +51,7 @@
             android:verticalScrollbarPosition="left"
 
             android:textColor="#ffffff"
-            android:text="Welcome to Textify \n\n press on the camera below \n to start textifying"
+            android:text="@string/txt_default"
             android:visibility="visible"/>
 
     </LinearLayout>
