@@ -42,6 +42,7 @@ class MainActivity : AppCompatActivity() {
     companion object{
         const val PERMISSION_REQ_CODE = 11
         const val CAMERA_RESULT = 22
+        var isInitCloudinary=false
     }
 
     // if we have a permission to the camera & read-write permissions
@@ -51,14 +52,13 @@ class MainActivity : AppCompatActivity() {
     var fileName=""
     val DIR = getExternalStoragePublicDirectory(DIRECTORY_PICTURES).toString() + separator + "textify"
 
-
     var textResult = ""
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        initCloudinary()
+        if(!isInitCloudinary) initCloudinary()
         initViews()
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) checkForPermission()
         setOnClicks()
@@ -118,11 +118,12 @@ class MainActivity : AppCompatActivity() {
         val config = HashMap<String,String>()
         config["cloud_name"] = "dsbqen2df"
         MediaManager.init(this, config)
+        isInitCloudinary=true
     }
 
     private fun setOnClicks() {
 
-        btnExit.setOnClickListener { eraseImgCache(); finish() }
+        btnExit.setOnClickListener {   eraseImgCache(); finish() }
         btnAbout.setOnClickListener { showAboutDialog() }
         btnShoot.setOnClickListener { shootAndTextify() }
 
@@ -135,6 +136,7 @@ class MainActivity : AppCompatActivity() {
         btnCopyClipboard.setOnClickListener { copyTxtToClipboard() }
         btnShare.setOnClickListener { shareTxt() }
     }
+
 
     private fun shareTxt() {
         try {
