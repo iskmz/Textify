@@ -11,6 +11,7 @@ import androidx.core.app.ActivityCompat
 import android.Manifest.permission.CAMERA
 import android.Manifest.permission.READ_EXTERNAL_STORAGE
 import android.Manifest.permission.WRITE_EXTERNAL_STORAGE
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.pm.PackageManager.PERMISSION_GRANTED
 import androidx.core.content.ContextCompat
@@ -22,12 +23,15 @@ import android.os.*
 import android.os.Environment.*
 import android.util.Log
 import java.io.File.separator
-import java.io.File
 import android.graphics.BitmapFactory
 import android.graphics.Bitmap
 import com.cloudinary.android.callback.ErrorInfo
 import com.cloudinary.android.callback.UploadCallback
-import java.io.FileOutputStream
+import org.json.JSONObject
+import java.io.*
+import java.net.HttpURLConnection
+import java.net.MalformedURLException
+import java.net.URL
 
 
 class MainActivity : AppCompatActivity() {
@@ -260,7 +264,7 @@ class MainActivity : AppCompatActivity() {
             .callback(object : UploadCallback {
                 override fun onProgress(requestId: String?, bytes: Long, totalBytes: Long) {}
                 override fun onStart(requestId: String?) {
-                    textResult = "analyzing ..."
+                    textResult = "analyzing (step 1) ..."
                     txtText.text = textResult
                 }
                 override fun onReschedule(requestId: String?, error: ErrorInfo?) { errMsg() }
@@ -275,22 +279,62 @@ class MainActivity : AppCompatActivity() {
 
                 override fun onSuccess(requestId: String?, resultData: MutableMap<Any?, Any?>?) {
                     val url = resultData!!["url"].toString()
-                    textResult = analyzeImage(url)
+                    textResult = "analyzing (step 2) ..."
                     txtText.text = textResult
+                    analyzeImage(url)
                 }
             }
             )
             .dispatch()
     }
 
-    private fun analyzeImage(url: String): String {
+    @SuppressLint("StaticFieldLeak")
+    private fun analyzeImage(url: String) {
 
-        var res = ""
+        val API_KEY = "3d0eb03da388957"
+        val getReq = "https://api.ocr.space/parse/imageurl?apikey=$API_KEY&filetype=JPG&url=$url"
 
 
-        return  res
+        object:AsyncTask<Void,Void,String>(){
+            override fun doInBackground(vararg params: Void?): String {
+                var conn: HttpURLConnection? = null
+                var jsonString = ""
+                try {
+                    conn = URL(getReq).openConnection() as HttpURLConnection
+                    val inStream  = conn.inputStream
+                    jsonString = inStream.bufferedReader().use{ it.readText() }
+
+                } catch (e: MalformedURLException) { e.printStackTrace()
+                } catch (e: IOException) { e.printStackTrace()
+                } finally {
+                    assert(conn != null)
+                    conn!!.disconnect()
+                }
+                return jsonString
+            }
+
+            override fun onPostExecute(result: String?) {
+                super.onPostExecute(result)
+
+                val jsonRes = JSONObject(result)
+                val err:Boolean = jsonRes.getBoolean("IsErroredOnProcessing")
+
+                Log.e("res_json_all",result)
+                Log.e("res_err",err.toString())
+
+                textResult = if (err) { "error on processing!" }
+                else
+                {
+                    (jsonRes.getJSONArray("ParsedResults")[0] as JSONObject)
+                        .getString("ParsedText")
+                }
+
+                Log.e("res_txt",textResult)
+
+                txtText.text = textResult
+            }
+        }.execute()
     }
-
 
     private fun extStorageOK(): Boolean {
         val extStorageState = getExternalStorageState()
